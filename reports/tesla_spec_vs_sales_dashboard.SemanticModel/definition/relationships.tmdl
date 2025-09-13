@@ -1,0 +1,34 @@
+relationship AutoDetected_63700ac4-07c3-4632-8e62-7a17858afc43
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: dModels.Model
+	toColumn: 'AI Accuracy%'.Model
+
+relationship a832155a-8e90-70a8-512a-721070dfcb54
+	fromColumn: fUnitsSalesPredicted.Model
+	toColumn: dModels.Model
+
+relationship ef539f0d-685f-62dc-782a-5f33fc278797
+	fromColumn: fModelScore.Model
+	toColumn: dModels.Model
+
+relationship 11a44225-baef-0c62-a124-2f0acf5e05dc
+	fromColumn: fUnitsSold.Model
+	toColumn: dModels.Model
+
+relationship 6889fd04-459b-c951-d048-17cc731531e7
+	fromColumn: fUnitsSold.Date
+	toColumn: dDate.Date
+
+relationship 02600e7d-61f0-a29b-dfc9-e7b6f6282b42
+	fromColumn: fUnitsSalesPredicted.Date
+	toColumn: dDate.Date
+
+relationship 88b2924a-ac11-3333-eacb-465473400b07
+	fromColumn: fSales.Date
+	toColumn: dDate.Date
+
+relationship 46781d37-56f4-bcdb-2f17-2e9acc76b087
+	fromColumn: fSales.Model
+	toColumn: dModels.Model
+

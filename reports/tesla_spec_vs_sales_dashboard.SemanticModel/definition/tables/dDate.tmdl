@@ -1,0 +1,60 @@
+table dDate
+	lineageTag: bb67dd36-7005-44da-8ce0-442154eada81
+
+	column Date
+		formatString: General Date
+		lineageTag: d1a8609e-1a74-4468-9814-c7bca694d04a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: dbf9ec26-8a00-42a9-9124-3c329848e6a9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Qtr
+		lineageTag: 8c85b813-172f-44f9-88fe-1704ed5e833b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Qtr]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year & Qtr'
+		lineageTag: 2b9d048c-678f-4bb8-95ec-53bff5b6ab2d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year & Qtr]
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Year & Quarter Hierarchy'
+		lineageTag: abe4bd6e-e5ed-4c84-8feb-cab32071d5fb
+
+		level Year
+			lineageTag: 9627e35c-b653-42e5-9129-ef82f46f3e29
+			column: Year
+
+		level Qtr
+			lineageTag: 0c34f31b-c12e-45d4-b9d4-e451293fc617
+			column: Qtr
+
+	partition dDate = calculated
+		mode: import
+		source =
+				ADDCOLUMNS(
+				    CALENDAR(DATE(2016,01,01),DATE(2026,12,31)),
+				    "Year",YEAR([Date]),
+				    "Qtr","Q" & QUARTER([Date]),
+				    "Year & Qtr", YEAR([Date]) & " Q" & QUARTER([Date])
+				)
+
+	annotation PBI_Id = 25354936217e4220b005b2fbc20e43f3
+

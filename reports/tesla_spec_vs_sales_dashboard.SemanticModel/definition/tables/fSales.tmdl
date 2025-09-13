@@ -1,0 +1,109 @@
+table fSales
+	lineageTag: 722d2cc9-d93d-449f-9d1f-8d7b351b15c7
+
+	measure check = IF(SUM(fSales[Units Sold]) <> SUM(fSales[Units Sold]), 1,0)
+		formatString: 0
+		lineageTag: 4c4be2eb-87ca-4578-a452-54fd61747ca1
+
+	measure 'Total Sales' = CALCULATE(Sum(fSales[Sales Value]))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 072fcdfb-1dbe-4c58-86ff-5750dcbb04f3
+
+	measure YTD = CALCULATE([Total Sales],YEAR(dDate[Date]) = Year(MAX(fSales[Date])))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: fa5a0637-8a26-4b8e-aada-36d09857cd02
+
+	measure QTD = CALCULATE([Total Sales],YEAR(dDate[Date]) = Year(MAX(fSales[Date])),QUARTER(dDate[Date]) = QUARTER(MAX(fSales[Date])))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: aa6ea21f-5a8a-48c5-9b10-e29ebe0befc9
+
+	measure LYTD = CALCULATE([Total Sales],YEAR(dDate[Date]) = Year(MAX(fSales[Date])) - 1)
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 0044496e-43b1-4c4c-959f-3678e3ae85a9
+
+	measure 'YoY %' =
+			
+			IF([LYTD] <> 0,
+			DIVIDE([YTD]-[LYTD],[LYTD],0),0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 629768a1-8cd9-4558-94a3-e9200cea532f
+
+	measure 'Average YoY %' = CALCULATE(AVERAGEX(ALLSELECTED(dDate[Year]),[YoY %]))
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b1a42e08-d376-4183-910e-2864a8e9ab80
+
+	measure 'Target Vs Achieved' = DIVIDE([YTD],[LYTD],0)*10
+		lineageTag: 9c6166b1-ff2c-47e8-9926-c20e422ed4e3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: cba80a92-49df-4c49-b89b-9354dbbc0e5c
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: ee45700f-2b54-47b0-93e2-ecd3e3e7580d
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column Model
+		dataType: string
+		lineageTag: cc0b7be3-51be-4a40-8d70-b535bb951a07
+		summarizeBy: none
+		sourceColumn: Model
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Units Sold'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 2b00ed41-3320-44cf-a98c-26efd8c0c52e
+		summarizeBy: sum
+		sourceColumn: Units Sold
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Value'
+		dataType: int64
+		formatString: 0
+		lineageTag: 6e5fea70-0011-4c37-bc05-1021753d546e
+		summarizeBy: sum
+		sourceColumn: Sales Value
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date = DATE(fSales[Year],VALUE(Right(fSales[Quarter],1))*3,1)
+		formatString: General Date
+		lineageTag: 913763d8-dadc-4797-aa7d-04deed42120a
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fSales = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\Personal Projects\Power BI\Tesla Dashboard\Assets\Dataset.xlsx"), null, true),
+				    Sales_Sheet = Source{[Item="Sales",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sales_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Year", Int64.Type}, {"Quarter", type text}, {"Model", type text}, {"Units Sold", Int64.Type}, {"Sales Value (in billions)", type text}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type","$","",Replacer.ReplaceText,{"Sales Value (in billions)"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Replaced Value",{{"Sales Value (in billions)", type number}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type1", "Sales Value", each [#"Sales Value (in billions)"] * 1000000000),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Custom",{"Sales Value (in billions)"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Removed Columns",{{"Sales Value", Int64.Type}})
+				in
+				    #"Changed Type2"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

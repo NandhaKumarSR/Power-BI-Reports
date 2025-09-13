@@ -1,0 +1,80 @@
+table fUnitsSalesPredicted
+	lineageTag: ec4f5098-66c3-4a4f-846e-35ec0199aa68
+
+	measure 'Units Prediction' = SUM(fUnitsSalesPredicted[Unit Sales Predicted])
+		formatString: #,0
+		lineageTag: 92c33409-4dee-4d39-9485-e41aecba0922
+
+	measure 'Expected YoY growth %' =
+			
+			Var minYearValue = CALCULATE(fUnitsSalesPredicted[Units Prediction],YEAR(dDate[Date]) = YEAR(MIN(fUnitsSalesPredicted[Date])))
+			var maxYearValue = CALCULATE(fUnitsSalesPredicted[Units Prediction],YEAR(dDate[Date]) = YEAR(Max(fUnitsSalesPredicted[Date])))
+			RETURN
+			1 - DIVIDE(maxYearValue - minYearValue,maxYearValue)//if(DIVIDE(maxYearValue - minYearValue,maxYearValue)>1,1,if( DIVIDE(maxYearValue - minYearValue,maxYearValue) <-1,-1,DIVIDE(maxYearValue - minYearValue,maxYearValue)))
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b53d0091-71b9-49f6-a712-792d2281ee60
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d7e0fb39-d0e4-4f1f-b7d8-89365c323ede
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Model
+		dataType: string
+		lineageTag: 7e59320f-0e8f-49f4-a1d5-810b06734f33
+		summarizeBy: none
+		sourceColumn: Model
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Units'
+		dataType: double
+		isHidden
+		lineageTag: b403d245-cf92-4275-9c15-a682c443839b
+		summarizeBy: sum
+		sourceColumn: Sales Units
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Unit Sales Predicted' =
+			
+			Var Predicted = ROUNDUP(fUnitsSalesPredicted[Sales Units],0)
+			RETURN
+			IF(Predicted<0,0,Predicted)
+		dataType: int64
+		lineageTag: d2861f72-f272-4157-8910-b14ffb60203b
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fUnitsSalesPredicted = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\Personal Projects\Power BI\Tesla Dashboard\Assets\Dataset.xlsx"), null, true),
+				    #"AI Prediction_Sheet" = Source{[Item="AI Prediction",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"AI Prediction_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Date", type date}, {"Model S", type number}, {"Model X", type number}, {"Model 3", type number}, {"Model Y", type number}}),
+				    #"Unpivoted Columns" = Table.UnpivotOtherColumns(#"Changed Type", {"Date"}, "Attribute", "Value"),
+				    #"Renamed Columns" = Table.RenameColumns(#"Unpivoted Columns",{{"Attribute", "Model"}, {"Value", "Sales Units"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

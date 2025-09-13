@@ -1,0 +1,56 @@
+table fModelScore
+	lineageTag: 77cd4124-7a10-4edd-b6dc-17db3606dded
+
+	measure 'Model Score' = AVERAGE(fModelScore[Score])
+		lineageTag: 72c5b498-0d34-4d34-8305-2ee604aeaa8c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Model
+		dataType: string
+		lineageTag: 02275ec2-f585-4710-bd69-07187c629f2c
+		summarizeBy: none
+		sourceColumn: Model
+
+		annotation SummarizationSetBy = Automatic
+
+	column Metric
+		dataType: string
+		lineageTag: 45627a31-2adc-4377-a89a-f0fcfaaf9e72
+		summarizeBy: none
+		sourceColumn: Metric
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value
+		dataType: string
+		lineageTag: e33cc342-72d9-4aa9-8c86-d6ee6ea1cc48
+		summarizeBy: none
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+	column Score
+		dataType: int64
+		formatString: 0
+		lineageTag: 877afe4a-8890-4311-9d6e-007ec57c59a0
+		summarizeBy: sum
+		sourceColumn: Score
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fModelScore = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\Personal Projects\Power BI\Tesla Dashboard\Assets\Dataset.xlsx"), null, true),
+				    #"Spider Chart_Sheet" = Source{[Item="Spider Chart",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Spider Chart_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Model", type text}, {"Metric", type text}, {"Value", type text}, {"Score", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

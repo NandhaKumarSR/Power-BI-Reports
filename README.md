@@ -6,7 +6,6 @@ This project presents a Power BI dashboard that visualizes Tesla's global sales 
 
 <img width="1549" height="845" alt="image" src="https://github.com/user-attachments/assets/24524009-ccd7-4c54-9413-98c3dd5eda20" />
 
-
 ---
 
 ## 📊 Data Sources
@@ -58,18 +57,24 @@ The Jupyter notebook uses **linear regression** to forecast future unit sales ba
 │   └── tesla_sales_forecast_linear_regression.ipynb
 ├── assets/
 │   └── dashboard_screenshot_home.png
-│   └── dashboard_screenshot_models_overview.png 
+│   └── dashboard_screenshot_models_overview.png
+├── reports/
+│   └── tesla_pbip_project_files
+│   └── tesla_spec_vs_sales_dashboard.pbip
 ├── README.md
 
 ```
+
 ---
 
 ## 🚀 How to Use
 
 1. Run the Jupyter notebook to generate linear regression predictions.
-2. Export the updated CSV with predicted sales.
-3. Load the CSV into Power BI and refresh visuals.
-4. Share or embed the dashboard via Power BI service.
+2. Export the updated .xlsx with predicted sales.
+3. Clone the repo and open tesla_spec_vs_sales_dashboard.pbip in Power BI desktop
+4. Save the file in .pbix format in a local recpository.
+5. Repoint the source to .xlsx file location.
+6. Share or embed the dashboard via Power BI service.
 
 ---
 

@@ -1,0 +1,49 @@
+table 'AI Accuracy%'
+	lineageTag: f9589965-6d7e-44ce-9d0f-7164f5992f85
+
+	measure 'Confidence %' = "Confidence % : "& FORMAT(AVERAGE('AI Accuracy%'[Accuracy %])/100,"Percent")
+		lineageTag: 197405bf-e808-47b7-90bd-ab6d15b5c20b
+
+	column Model
+		dataType: string
+		lineageTag: b6e9849a-c108-418a-a912-91c668683d73
+		summarizeBy: none
+		sourceColumn: Model
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Accuracy %'
+		dataType: double
+		isHidden
+		lineageTag: b97c65fd-f788-4f29-ae53-35e7790f6e5d
+		summarizeBy: sum
+		sourceColumn: Accuracy %
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Accuracy% = DIVIDE('AI Accuracy%'[Accuracy %],100,0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 7b45cd33-5a63-4dee-a6f6-46c80669552b
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'AI Accuracy%' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\Personal Projects\Power BI\Tesla Dashboard\Assets\Dataset.xlsx"), null, true),
+				    Accuracy_Sheet = Source{[Item="Accuracy",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Accuracy_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Model", type text}, {"Accuracy %", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

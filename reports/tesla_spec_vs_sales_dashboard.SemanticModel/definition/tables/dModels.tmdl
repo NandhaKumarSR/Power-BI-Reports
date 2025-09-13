@@ -1,0 +1,83 @@
+table dModels
+	lineageTag: a9b7e1d7-71b3-4c09-87cc-ca260c1fc591
+
+	measure 'All Models' =
+			
+			var model3_y = "https://static.tildacdn.com/tild6165-3836-4735-a561-636131323738/teslas.png"
+			RETURN
+			model3_y
+		lineageTag: 963870a2-667c-4c71-a708-4404e09da83e
+		dataCategory: ImageUrl
+
+	measure 'Img URLs' = IF(NOT(HASONEFILTER(dModels[Model])),[All Models],MAX(dModels[Image URL]))
+		lineageTag: d72499bc-c8f7-467e-8e85-15a88dcf2241
+
+	measure 'Tesla Logo' =
+			//"https://static.vecteezy.com/system/resources/previews/020/975/565/non_2x/tesla-logo-tesla-icon-transparent-free-png.png"
+			"https://pngteam.com/images/tesla-logo-png-3000x2000_58de6dff.png"
+		lineageTag: 332f416f-cda0-4d7f-af14-28a41259f951
+
+	column Model
+		dataType: string
+		lineageTag: 660c6e70-7294-4956-8e43-dbfb4af6b148
+		summarizeBy: none
+		sourceColumn: Model
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Image URL'
+		dataType: string
+		lineageTag: 1dfbd893-9b89-49ea-8518-e09651e2eaaf
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: Image URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Starting Prices'
+		dataType: int64
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: d856b97b-bf82-4c91-a47c-8e8721faa519
+		summarizeBy: sum
+		sourceColumn: Starting Prices
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total units Sold' = CALCULATE(SUM(fUnitsSold[Value]))
+		formatString: 0
+		lineageTag: 63a6c694-090a-47cc-8bee-2525dcc257f4
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Weighted Sales $' = dModels[Starting Prices] * dModels[Total units Sold]
+		formatString: 0
+		lineageTag: 3751da6c-fbb6-4dc8-88f0-7f24e1cc91ff
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Target Vs Achieved' = "Total Units Sold"
+		lineageTag: 433c5160-7c69-45d7-89d8-8410c16e5673
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dModels = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\Personal Projects\Power BI\Tesla Dashboard\Assets\Dataset.xlsx"), null, true),
+				    #"Image URL_Sheet" = Source{[Item="Image URL",Kind="Sheet"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(#"Image URL_Sheet",{{"Column1", type text}, {"Column2", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"Model", type text}, {"Image URL", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

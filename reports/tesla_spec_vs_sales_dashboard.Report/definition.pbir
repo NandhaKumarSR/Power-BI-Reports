@@ -1,0 +1,8 @@
+{
+  "version": "4.0",
+  "datasetReference": {
+    "byPath": {
+      "path": "../tesla_spec_vs_sales_dashboard.SemanticModel"
+    }
+  }
+}
