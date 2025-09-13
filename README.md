@@ -50,6 +50,7 @@ The Jupyter notebook uses **linear regression** to forecast future unit sales ba
 
 ## 📁 Folder Structure
 
+```
 📁 tesla_spec_vs_sales_dashboard/
 ├── data/
 │   └── tesla_sales_with_predictions.csv
@@ -60,6 +61,7 @@ The Jupyter notebook uses **linear regression** to forecast future unit sales ba
 │   └── dashboard_screenshot_models_overview.png 
 ├── README.md
 
+```
 ---
 
 ## 🚀 How to Use
